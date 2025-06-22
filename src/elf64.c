@@ -1,6 +1,6 @@
 #include "ft_nm.h"
 
-extern t_elf_info g_elf;
+extern t_elf_file g_elf_file;
 
 Elf64_Shdr  *get_symtab(Elf64_Shdr *sections, size_t num_sections) {
     size_t i;
@@ -42,49 +42,38 @@ char get_type(Elf64_Sym symbol) {
     return c;
 }
 
-char    *get_name(size_t idx_name, char *names, size_t names_size) {
-    if (idx_name == 0 || idx_name >= names_size)
-        return NULL;
-    return names + idx_name;
+t_symbol    translate_symbol(Elf64_Sym elf_symbol, char *names) {
+    t_symbol symbol;
+
+    symbol.value = elf_symbol.st_value;
+    symbol.name = names[elf_symbol.st_name];
+
+    return symbol;
 }
 
-t_symbol    *translate_symbol(Elf64_Shdr strtab, Elf64_Shdr *symtab, char *content) {
-
-}
-
-char    *get_names(unsigned long int offset) {
-    if (offset == 0 || offset >= g_elf.size)
-        return NULL;
-    return g_elf.content + offset;
-}
-
-t_symbol    *translate_symbols(Elf64_Shdr strtab, Elf64_Shdr *symtab) {
+t_symbol    *get_symbols(Elf64_Shdr strtab, Elf64_Shdr *symtab) {
     char        *names;
     Elf64_Sym   *elf_symbols;
     size_t      num_symbols;
     t_symbol    *symbols;
 
-
-    if (strtab.sh_offset == 0 || strtab.sh_offset >= g_elf.size)
+    names = extract_fom_content(strtab.sh_offset);
+    if (names == NULL || names[0] == '\0')
         return NULL;
-    names = g_elf.content + strtab.sh_offset;
-
-    if (symtab->sh_offset == 0 || symtab->sh_offset >= g_elf.size)
+    elf_symbols = (Elf64_Sym *) extract_fom_content(symtab->sh_offset);
+    if (elf_symbols == NULL)
         return NULL;
-    elf_symbols = (Elf64_Sym *) (g_elf.content + symtab->sh_offset);
-
     num_symbols = symtab->sh_size / sizeof(Elf64_Sym);
-
     symbols = malloc(sizeof(t_symbol) * num_symbols);
     if (!symbols)
         return NULL;
-
     for (size_t i = 0, k = 0; i < num_symbols; i++) {
-        t_symbol symbol = create_symbol(elf_symbols[i], names, strtab.sh_size);
-        if (!symbol)
+        t_symbol symbol = translate_symbol(elf_symbols[i], names);
+        if (symbol.name == NULL)
             continue ;
-        symbols[k] = *symbol;
-        printf("%c %s\n", name);
+        symbols[k] = symbol;
+        k++;
+        printf("%c %s\n", symbol.name);
     }
     return symbols;
 }
@@ -93,23 +82,22 @@ int    process_elf64() {
     Elf64_Ehdr  *header;
     Elf64_Shdr  *sections;
     Elf64_Shdr  *symtab;
-    Elf64_Shdr  strtab;
-    size_t      sections_size;
+    t_symbol    *symbols;
 
-    header = (Elf64_Ehdr *) g_elf.content;
-    if (header->e_shoff == 0 || header->e_shoff >= g_elf.size)
+    header = (Elf64_Ehdr *) g_elf_file.content;
+    if (header->e_shoff + header->e_shnum * header->e_shentsize > g_elf_file.size)
         return 1;
-    sections_size = header->e_shnum * header->e_shentsize;
-    if (header->e_shoff + sections_size > g_elf.size)
+    sections = (Elf64_Shdr *) extract_fom_content(header->e_shoff);
+    if (sections == NULL)
         return 1;
-
-    sections = (Elf64_Shdr *) (g_elf.content + header->e_shoff);
     symtab = get_symtab(sections, header->e_shnum);
     if (!symtab) {
-        printf("nm: %s: no symbols\n", g_elf.path);
+        printf("nm: %s: no symbols\n", g_elf_file.path);
         return 0;
     }
-    strtab = sections[symtab->sh_link];
-
-    return display_symbols(strtab, symtab, g_elf.content);
+    if(symtab->sh_link >= header->e_shnum)
+        return 1;
+    symbols = get_symbols(sections[symtab->sh_link], symtab);
+    
+    return display_symbols(sections[symtab->sh_link], symtab);
 }

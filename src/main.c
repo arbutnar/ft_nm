@@ -1,63 +1,63 @@
 #include "ft_nm.h"
 
-t_elf_info g_elf = {NULL, 0, ELFCLASSNONE, ELFDATANONE};
+extern t_elf_file g_elf_file;
 
-static int (*elf_processors[])() = {
-    NULL,
-    process_elf32,
-    process_elf64
-};
+int set_content(void *map) {
+    char *content;
 
-int check_content(char *content) {
-    if (g_elf.size < sizeof(Elf32_Ehdr) ||
+    content = (char *) map;
+    if (g_elf_file.size < sizeof(Elf32_Ehdr) ||
         content[0] != 0x7f || content[1] != 'E' ||
         content[2] != 'L' || content[3] != 'F') {
         return 1;
     }
     if(content[EI_CLASS] != ELFCLASS32 && content[EI_CLASS] != ELFCLASS64)
         return 1;
-    if (content[EI_CLASS] == ELFCLASS64 && g_elf.size < sizeof(Elf64_Ehdr))
+    if (content[EI_CLASS] == ELFCLASS64 && g_elf_file.size < sizeof(Elf64_Ehdr))
         return 1;
     if (content[EI_DATA] != ELFDATA2LSB && content[EI_DATA] != ELFDATA2MSB)
         return 1;
     if (content[EI_VERSION] != EV_CURRENT)
         return 1;
+    g_elf_file.content = content;
+    g_elf_file.class = content[EI_CLASS];
+    g_elf_file.endian = content[EI_DATA];
     return 0;
 }
 
-int ft_nm(char *file_path) {
-    struct stat file_info;
-    int         fd;
-    void        *map;
-    char        *content;
+void    *map_file(char *file_path) {
+    int     fd;
+    struct  stat file_info;
+    void    *map;
 
-    g_elf.path = file_path;
+    g_elf_file.path = file_path;
     fd = open(file_path, O_RDONLY);
     if (fd == -1)
-        return print_error(strerror(errno));
-    if (stat(file_path, &file_info) < 0)
-        return print_error(strerror(errno));
+        return NULL;
+    if (fstat(fd, &file_info) < 0)
+        return NULL;
     if (S_ISDIR(file_info.st_mode))
-        return print_error("is a directory");
-    g_elf.size = file_info.st_size;
+        return NULL;
+    g_elf_file.size = file_info.st_size;
     map = mmap(NULL, file_info.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     close(fd);
+    return map;
+}
+
+int ft_nm(char *file_path) {
+    void    *map;
+    int     ret;
+
+    map = map_file(file_path);
     if (map == MAP_FAILED)
-        return print_error(strerror(errno));
-    content = (char *) map;
-    if (check_content(content)) {
-        print_error("file format not recognized");
-        munmap(map, file_info.st_size);
-        return 1;
+        return print_error("can't be mapped");
+    if (set_content((char *) map)) {
+        munmap(map, g_elf_file.size);
+        return print_error("file format not recognized");
     }
-
-    g_elf.content = content;
-    g_elf.class = g_elf.content[EI_CLASS];
-    g_elf.endian = g_elf.content[EI_DATA];
-    elf_processors[g_elf.class]();
-
-    munmap(map, file_info.st_size);
-    return 0;
+    ret = process_elf64();
+    munmap(map, g_elf_file.size);
+    return ret;
 }
 
 int main(int argc, char *argv[]) {
