@@ -3,7 +3,7 @@
 extern t_elf_file g_elf_file;
 
 int print_error(char *error) {
-    fprintf(stderr, "ft_nm: '%s': %s\n", g_elf_file.path, error);
+    fprintf(stderr, "nm: '%s': %s\n", g_elf_file.path, error);
     return (1);
 }
 
