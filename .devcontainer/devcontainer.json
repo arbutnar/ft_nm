@@ -1,13 +1,18 @@
 {
-	"name": "ft_nm",
-	"build": {
-		"dockerfile": "Dockerfile",
-		"args": {
-			"USER": "mabasset",
-			"UID": "1000",
-			"GID": "1000"
-		}
-	},
-	"workspaceFolder": "/home/mabasset/ft_nm",
-	"workspaceMount": "source=${localWorkspaceFolder},target=/home/mabasset/ft_nm,type=bind"
+    "name": "ft_nm",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": {
+            "USER": "mabasset",
+            "UID": "1000",
+            "GID": "1000"
+        }
+    },
+    "workspaceFolder": "/home/mabasset/ft_nm",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/mabasset/ft_nm,type=bind",
+    "customizations": {
+        "vscode": {
+            "extensions": ["ms-vscode.cpptools"]
+        }
+    }
 }

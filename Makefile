@@ -5,8 +5,7 @@ O_DIR =	obj/
 
 SRC =	main.c \
 		utils.c \
-		elf64.c \
-		elf32.c \
+		globals.c
 
 OBJ =	$(addprefix $(O_DIR),$(SRC:.c=.o))
 

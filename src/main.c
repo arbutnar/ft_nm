@@ -1,8 +1,9 @@
 #include "ft_nm.h"
 
 extern t_elf_file g_elf_file;
+extern t_flags g_flags;
 
-char    *check_content(char *content) {
+int check_content(char *content) {
     if (g_elf_file.size < sizeof(Elf32_Ehdr) ||
         content[0] != 0x7f || content[1] != 'E' ||
         content[2] != 'L' || content[3] != 'F') {
@@ -46,19 +47,86 @@ int ft_nm(char *file_path) {
     }
     g_elf_file.size = file_info.st_size;
     g_elf_file.content = content;
-    g_elf_file.class = content[EI_CLASS];
     g_elf_file.endian = content[EI_DATA];
-    ret = process_elf64();
+    if (content[EI_CLASS] == ELFCLASS32)
+        ret = process_elf64();
+    else
+        ret = process_elf32();
     munmap(map, g_elf_file.size);
     return ret;
 }
 
-int main(int argc, char *argv[]) {
-    int exit_status = 0;
+int     set_flags(char *flags) {
+    static char error[25] = "invalid option -- \'?\'";
 
-    if (argc < 2)
-        return ft_nm("a.out");
-    for (int i = 1; i < argc; i++)
-        exit_status = ft_nm(argv[i]) || exit_status;
+    for (int i = 1; flags[i] != '\0'; i++) {
+        switch(flags[i]) {
+            case 'a':
+                g_flags.all = 1;
+                break;
+            case 'g':
+                g_flags.external = 1;
+                break;
+            case 'u':
+                g_flags.undefined = 1;
+                break;
+            case 'r':
+                g_flags.reverse = 1;
+                break;
+            case 'p':
+                g_flags.no_sort = 1;
+                break;
+            default:
+                error[19] = flags[i];
+                print_error(error);
+                return 1;
+        }
+    }
+    return 0;
+}
+
+char    **process_arguments(int argc, char *argv[]) {
+    char    **file_paths;
+    int     k;
+
+    file_paths = malloc(sizeof(char *) * (argc + 1));
+    if (file_paths == NULL) {
+        print_error(strerror(errno));
+        return NULL;
+    }
+    if (argc < 2) {
+        file_paths[0] = "a.out";
+        file_paths[1] = NULL;
+        return file_paths;
+    }
+    k = 0;
+    for (int i = 1; i < argc; i++) {
+        if (argv[i][0] == '-' && argv[i][1] != '\0') {
+            if (set_flags(argv[i])) {
+                print_usage();
+                free(file_paths);
+                return NULL;
+            }
+            continue ;
+        }
+        file_paths[k] = argv[i];
+        k++;
+    }
+    file_paths[k] = NULL;
+    return file_paths;
+}
+
+int main(int argc, char *argv[]) {
+    int     exit_status = 0;
+    char    **file_paths;
+
+    file_paths = process_arguments(argc, argv);
+    if (file_paths == NULL)
+        return 1;
+    print_matrix(file_paths);
+    for (int i = 0; file_paths[i] != NULL; i++)
+        exit_status = ft_nm(file_paths[i]) || exit_status;
+    
+    free(file_paths);
     return exit_status;
 }
