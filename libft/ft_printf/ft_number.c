@@ -3,42 +3,42 @@
 /*                                                        :::      ::::::::   */
 /*   ft_number.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mabasset <mabasset@student.42roma.it>      +#+  +:+       +#+        */
+/*   By: arbutnar <arbutnar@student.42roma.it>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/01/25 08:51:47 by mabasset          #+#    #+#             */
-/*   Updated: 2022/01/28 23:10:42 by mabasset         ###   ########.fr       */
+/*   Created: 2022/01/25 08:51:47 by arbutnar          #+#    #+#             */
+/*   Updated: 2022/01/28 23:10:42 by arbutnar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "ft_printf_internal.h"
 
-void ft_rec_len(unsigned long n, char *base, unsigned long blen, int *len)
+static void ft_rec_len(unsigned long n, char *base, unsigned long blen, int *len)
 {
     if (n >= blen)
         ft_rec_len(n / blen, base, blen, len);
     *len += 1;
 }
 
-void ft_rec(unsigned long n, char *base, unsigned long blen, char *str)
+static void ft_rec(unsigned long n, char *base, unsigned long blen, char *str)
 {
     if (n >= blen)
         ft_rec(n / blen, base, blen, str + 1);
     *str = (base[n % blen]);
 }
 
-void ft_negative(long long *n, t_struct *params)
+static void ft_negative(long long *n, t_struct *params)
 {
     *n *= -1;
     params->plus = 0;
     params->space = 0;
 }
 
-void ft_itoa_base(int fd, long long n, char *base, t_struct *params)
+void    ft_itoa_base(long long n, char *base, t_struct *params)
 {
-    int blen;
-    int len;
-    int flag;
-    char *str;
+    int     blen;
+    int     len;
+    int     flag;
+    char    *str;
 
     len = 0;
     flag = 1;
@@ -48,7 +48,7 @@ void ft_itoa_base(int fd, long long n, char *base, t_struct *params)
         ft_negative(&n, params);
     blen = ft_strlen(base);
     ft_rec_len(n, base, blen, &len);
-    str = (char *)malloc(sizeof(char) * len + flag);
+    str = (char *) malloc (sizeof(char) * len + flag);
     str[len + flag - 1] = '\0';
     if (flag == 2 && params->plus == 0 && params->space == 0)
         str[len] = '-';
@@ -58,22 +58,22 @@ void ft_itoa_base(int fd, long long n, char *base, t_struct *params)
         str[len] = ' ';
     ft_rec(n, base, blen, str);
     ft_strrev(str);
-    ft_printnum(fd, str, params);
+    ft_printnum(str, params);
     free(str);
 }
 
-void ft_utoa_base(int fd, unsigned long int n, char *base, t_struct *params, int add)
+void    ft_utoa_base(unsigned long int n, char *base, t_struct *params, int add)
 {
-    int blen;
-    int len;
-    char *str;
+    int     blen;
+    int     len;
+    char    *str;
 
     len = 0;
     blen = ft_strlen(base);
     ft_rec_len(n, base, blen, &len);
     if (params->sharp == 1 && n != 0)
         add = 2;
-    str = (char *)malloc(sizeof(char) * (len + add + 1));
+    str = (char *) malloc (sizeof(char) * (len + add + 1));
     str[len + add] = '\0';
     if (add == 2)
     {
@@ -82,6 +82,6 @@ void ft_utoa_base(int fd, unsigned long int n, char *base, t_struct *params, int
     }
     ft_rec(n, base, blen, str);
     ft_strrev(str);
-    ft_printnum(fd, str, params);
+    ft_printnum(str, params);
     free(str);
 }

@@ -57,11 +57,12 @@ int check_content(t_string mapped_file) {
 int ft_nm(char *file_path) {
     int         fd __attribute__ ((cleanup(close_fd)));
     t_string    mapped_file __attribute__ ((cleanup(unmap_file))) = { 0 };
-    t_sym_info  **symbols_info;
+    t_sym_info  **symbols_info __attribute__ ((cleanup(free_symbols))) = { 0 };
 
     fd = get_file_fd(file_path);
     if (fd < 0)
         return 1;
+
     mapped_file.size = get_file_size(fd, file_path);
     if (mapped_file.size == 0)
         return 1;
@@ -83,38 +84,33 @@ int ft_nm(char *file_path) {
 
     if (!g_flags.no_sort)
         sort_symbols(symbols_info);
-    display_symbols(symbols_info, file_path, mapped_file.content[EI_CLASS]);
-    free_matrix(&symbols_info);
+    printf("name %s, type %c, value %s\n", symbols_info[0]->name, symbols_info[0]->type, symbols_info[0]->value);
+    print_symbols_info(symbols_info, file_path, mapped_file.content[EI_CLASS]);
     return 0;
 }
 
 char    *handle_long_flag(char *flag) {
     char    *long_flags[] = {"--debug-syms", "--extern-only", "--undefined-only", "--reverse-sort", "--no-sort"};
     char    *short_flags[] = {"-a", "-g", "-u", "-r", "-p"};
-    int     size = sizeof(long_flags) / sizeof(char *);
-    int     i;
+    int     size, i;
 
-    for (i = 0; i < size; i++)
+    size = sizeof(long_flags) / sizeof(char *);
+    for (i = 0; i < size; i++) {
         if (ft_strcmp(flag, long_flags[i]) == 0)
-            break;
-    size = sizeof(short_flags) / sizeof(char *);
-    if (i < size)
-        return short_flags[i];
+            return short_flags[i];
+    }
 
     ft_dprintf(STDERR_FILENO, "nm: unrecognized option \'%s\'\n", flag);
     return NULL;
 }
 
 int     set_flags(char *flags) {
-    char    *short_flag = NULL;
-
     for (int i = 1; flags[i] != '\0'; i++) {
         switch(flags[i]) {
             case '-':
-                short_flag = handle_long_flag(flags);
-                if (short_flag == NULL)
+                flags = handle_long_flag(flags);
+                if (flags == NULL)
                     return 1;
-                flags = short_flag;
                 i = 0;
                 break;
             case 'a':
@@ -124,7 +120,7 @@ int     set_flags(char *flags) {
             case 'u':
                 g_flags.undefined = 1; break;
             case 'r':
-                g_flags.reverse = 1; break;
+                g_flags.reverse_sort = 1; break;
             case 'p':
                 g_flags.no_sort = 1; break;
             default:
@@ -137,42 +133,42 @@ int     set_flags(char *flags) {
 
 char    **process_arguments(int argc, char *argv[]) {
     char    **file_paths;
-    int     k = 0;
+    int     end_of_options, k;
 
+    k = 0;
+    end_of_options = 0;
     file_paths = malloc(sizeof(char *) * (argc + 1));
-    if (file_paths == NULL) {
-        ft_dprintf(STDERR_FILENO, "nm: %s\n", strerror(errno));
-        return NULL;
-    }
+
     for (int i = 1; i < argc; i++) {
-        if (argv[i][0] == '-' && argv[i][1] != '\0') {
-            if (set_flags(argv[i])) {
-                print_usage();
-                free(file_paths);
+        if (!end_of_options && ft_strcmp(argv[i], "--") == 0)
+            end_of_options = 1;
+        else if (!end_of_options && (argv[i][0] == '-' && argv[i][1] != '\0')) {
+            if (set_flags(argv[i]))
                 return NULL;
-            }
-            continue;
         }
-        file_paths[k] = argv[i];
-        k++;
+        else {
+            file_paths[k] = argv[i];
+            k++;
+        }
     }
     if (k == 0)
         file_paths[k++] = "a.out";
     file_paths[k] = NULL;
     if (k > 1)
         g_flags.path = 1;
+
     return file_paths;
 }
 
 int main(int argc, char *argv[]) {
     int     exit_status = 0;
-    char    **file_paths;
+    char    **file_paths __attribute__((cleanup(free_file_paths)));
 
     file_paths = process_arguments(argc, argv);
     if (file_paths == NULL)
         return 1;
     for (int i = 0; file_paths[i] != NULL; i++)
         exit_status = ft_nm(file_paths[i]) || exit_status;
-    free(file_paths);
+
     return exit_status;
 }

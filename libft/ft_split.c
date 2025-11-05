@@ -3,95 +3,66 @@
 /*                                                        :::      ::::::::   */
 /*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mabasset <mabasset@student.42.fr>          +#+  +:+       +#+        */
+/*   By: arbutnar <arbutnar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/01/12 16:32:07 by mabasset          #+#    #+#             */
-/*   Updated: 2022/01/14 10:04:22 by mabasset         ###   ########.fr       */
+/*   Created: 2022/02/08 11:56:35 by arbutnar          #+#    #+#             */
+/*   Updated: 2022/02/08 11:56:37 by arbutnar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static int	ft_rowcount(char const *str, char c)
+static size_t	s_count(char const *s, char c)
 {
-	int	i;
-	int	count;
+	size_t		i;
 
-	count = 0;
 	i = 0;
-	while (str[i] != '\0')
+	while (*s)
 	{
-		while (str[i] == c)
+		if (*s != c)
+		{
 			i++;
-		if (str[i] != '\0')
-			count += 1;
-		while (str[i] != c && str[i] != '\0')
-			i++;
+			while (*s && *s != c)
+				s++;
+		}
+		else
+			s++;
 	}
-	return (count);
-}
-
-static int	ft_rowlen(char const *str, char c)
-{
-	int	i;
-	int	len;
-
-	len = 0;
-	i = 0;
-	while (str[i] == c)
-		i++;
-	while (str[i] != c && str[i] != '\0')
-	{
-		i++;
-		len++;
-	}
-	return (len);
-}
-
-static int	ft_putstr(char *matrix, char const *str, char c)
-{
-	int	i;
-	int	j;
-
-	j = 0;
-	i = 0;
-	while (str[i] == c)
-		i++;
-	while (str[i] != c && str[i] != '\0')
-	{
-		matrix[j] = str[i];
-		i++;
-		j++;
-	}
-	matrix[j] = '\0';
 	return (i);
+}
+
+char const	*ft_split_support(char const *s, char c)
+{
+	while (*s && *s != c)
+		s++;
+	return (s);
 }
 
 char	**ft_split(char const *s, char c)
 {
-	char	**matrix;
-	int		count;
-	int		len;
-	int		row;
+	char		**matrix;
+	char		*start;
+	size_t		i;
+	size_t		len;
 
-	count = ft_rowcount(s, c);
-	matrix = (char **) malloc (sizeof(char *) * (count + 1));
-	matrix[count] = NULL;
-	len = 0;
-	row = 0;
-	while (row < count)
+	if (!s)
+		return (0);
+	matrix = ft_calloc(s_count(s, c) + 1, sizeof(*matrix));
+	if (!matrix)
+		return (0);
+	i = 0;
+	while (*s)
 	{
-		len = ft_rowlen(s, c);
-		matrix[row] = (char *) malloc (sizeof(char) * (len + 1));
-		s += ft_putstr(matrix[row], s, c);
-		row++;
+		if (*s != c)
+		{
+			start = (char *)s;
+			s = ft_split_support(s, c);
+			len = s - start + 1;
+			matrix[i] = ft_calloc(len, sizeof(**matrix));
+			ft_strlcpy(matrix[i++], start, len);
+		}
+		else
+			s++;
 	}
 	return (matrix);
 }
-
-/*#include <stdio.h>
-
-int main()
-{
-	ft_split(" 1 2 3 4 5 6 7 8 9 10 11   12     13     14 15", ' ');
-}*/

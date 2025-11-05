@@ -49,7 +49,7 @@ typedef struct {
     int     all;
     int     external;
     int     undefined;
-    int     reverse;
+    int     reverse_sort;
     int     no_sort;
     int     path;
     int     endian_match;
@@ -106,12 +106,13 @@ uint64_t    bswap_64(uint64_t val);
 // utils.c
 void    close_fd(int *fd);
 void    unmap_file(t_string *mapped_file);
-void    free_matrix(t_sym_info ***symbols_info);
+void    free_file_paths(char ***file_paths);
+void    free_symbols(t_sym_info ***symbols_info);
 void    sort_symbols(t_sym_info **symbols_info);
-void    display_symbols(t_sym_info **symbols_info, char *file_path, int ei_class);
 
 // print.c
 void    print_usage();
 void    print_matrix(char **matrix);
+void    print_symbols_info(t_sym_info **symbols_info, char *file_path, int ei_class);
 
 #endif /* FT_NM_H */

@@ -3,54 +3,30 @@
 /*                                                        :::      ::::::::   */
 /*   ft_memmove.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mabasset <mabasset@student.42.fr>          +#+  +:+       +#+        */
+/*   By: arbutnar <arbutnar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/01/10 18:06:48 by mabasset          #+#    #+#             */
-/*   Updated: 2022/01/11 12:16:54 by mabasset         ###   ########.fr       */
+/*   Created: 2022/02/08 11:53:41 by arbutnar          #+#    #+#             */
+/*   Updated: 2022/02/08 11:53:42 by arbutnar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
-#include <stdio.h>
-#include <string.h>
 
 void	*ft_memmove(void *dst, const void *src, size_t len)
 {
-	int	i;
+	t_byte			*d;
+	const t_byte	*s;
 
-	if (!dst || !src)
-		return (NULL);
-	if (dst > src)
+	d = dst;
+	s = src;
+	if (s < d)
 	{
-		i = (int)len - 1;
-		while (i >= 0)
+		while (len > 0)
 		{
-			*(char *)(dst + i) = *(char *)(src + i);
-			i--;
+			*(d + len - 1) = *(s + len - 1);
+			len--;
 		}
+		return (dst);
 	}
-	else
-	{
-		i = 0;
-		while (i < (int)len)
-		{
-			*(char *)(dst + i) = *(char *)(src + i);
-			i++;
-		}
-	}
-	return (dst);
+	return (ft_memcpy(dst, src, len));
 }
-
-/*int main () {
-   char dest[] = "oldstring";
-   const char src[]  = "newstring";
-   printf("Before memmove dest = %s, src = %s\n", dest, src);
-   memmove(dest, src, 9);
-   printf("After memmove dest = %s, src = %s\n", dest, src);
-   char dest1[] = "oldstring";
-   const char src1[]  = "newstring";
-   printf("Before memmove dest = %s, src = %s\n", dest1, src1);
-   ft_memmove(dest1, src1, 9);
-   printf("After memmove dest = %s, src = %s\n", dest1, src1);
-   return(0);
-}*/

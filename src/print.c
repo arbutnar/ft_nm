@@ -1,5 +1,7 @@
 #include "ft_nm.h"
 
+extern t_flags  g_flags;
+
 void    print_usage() {
     ft_dprintf(STDERR_FILENO, "Usage: nm [option(s)] [file(s)]\n");
     ft_dprintf(STDERR_FILENO," List symbols in [file(s)] (a.out by default).\n");
@@ -59,4 +61,28 @@ void    print_matrix(char **matrix) {
             ft_printf(", ");
     }
     ft_printf("]\n");
+}
+
+void    print_symbols_info(t_sym_info **symbols_info, char *file_path, int ei_class) {
+    static char *undefined_types = "Uwv";
+    static char *external_types = "ABCDGRSTUVvWwi";
+    t_sym_info  *symbol_info;
+    const char  *format;
+
+    format = (ei_class == ELFCLASS32) ? "%8s %c %s\n" : "%16s %c %s\n";
+
+    if (g_flags.path)
+        ft_printf("\n%s:\n", file_path);
+    for (size_t i = 0; symbols_info[i] != NULL; i++) {
+        symbol_info = symbols_info[i];
+        if (g_flags.undefined && !ft_strchr(undefined_types, symbol_info->type))
+            continue;
+        if (g_flags.external && !ft_strchr(external_types, symbol_info->type))
+            continue;
+        if (!g_flags.all && (symbol_info->st_type == STT_SECTION || symbol_info->st_type == STT_FILE))
+            continue;
+        if (symbol_info->type == '?')
+            continue;
+        ft_printf(format, symbol_info->value, symbol_info->type, symbol_info->name);
+    }
 }

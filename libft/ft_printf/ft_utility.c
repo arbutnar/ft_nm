@@ -3,20 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   ft_utility.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mabasset <mabasset@student.42roma.it>      +#+  +:+       +#+        */
+/*   By: arbutnar <arbutnar@student.42roma.it>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/01/25 08:51:41 by mabasset          #+#    #+#             */
-/*   Updated: 2022/01/27 16:30:44 by mabasset         ###   ########.fr       */
+/*   Created: 2022/01/25 08:51:41 by arbutnar          #+#    #+#             */
+/*   Updated: 2022/01/27 16:30:44 by arbutnar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_printf.h"
+#include "ft_printf_internal.h"
 
-void ft_strrev(char *str)
+void    ft_strrev(char *str)
 {
-    int i;
-    int len;
-    char temp;
+    int     i;
+    int     len;
+    char    temp;
 
     len = 0;
     while (str[len] != '\0')
@@ -33,7 +33,7 @@ void ft_strrev(char *str)
     }
 }
 
-void ft_struct_init(t_struct *params)
+void    ft_struct_init(t_struct *params)
 {
     params->minus = 0;
     params->zero = 0;
@@ -52,14 +52,16 @@ void ft_struct_init(t_struct *params)
 
 int ft_checkidentifier(char c)
 {
-    if (c == 'c' || c == 's' || c == 'p' || c == 'd' || c == 'i' || c == 'u' || c == 'x' || c == 'X' || c == '%')
+    if (c == 'c' || c == 's' || c == 'p'
+        || c == 'd' || c == 'i' || c == 'u'
+        || c == 'x' || c == 'X' || c == '%')
         return (1);
     return (0);
 }
 
 int ft_precision(const char *str, int i, t_struct *params)
 {
-    params->point = 1;
+    params -> point = 1;
     while (ft_checkidentifier(str[i]) == 0 && ft_isdigit(str[i]) == 1)
     {
         params->precision *= 10;
@@ -70,7 +72,7 @@ int ft_precision(const char *str, int i, t_struct *params)
     return (i);
 }
 
-void ft_width(char ch, t_struct *params)
+void    ft_width(char ch, t_struct *params)
 {
     params->width *= 10;
     params->width += ch - '0';

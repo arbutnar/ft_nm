@@ -3,140 +3,50 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strtrim.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mabasset <mabasset@student.42.fr>          +#+  +:+       +#+        */
+/*   By: arbutnar <arbutnar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/01/12 11:39:20 by mabasset          #+#    #+#             */
-/*   Updated: 2022/01/18 17:53:57 by mabasset         ###   ########.fr       */
+/*   Created: 2022/02/08 12:02:38 by arbutnar          #+#    #+#             */
+/*   Updated: 2022/02/08 12:02:42 by arbutnar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static int	ft_start(char const *str, char const *set)
+static int	ft_pointer(char c, char const *str)
 {
 	int	i;
-	int	j;
-	int	start;
 
-	start = 0;
 	i = 0;
-	while (str[i] != '\0')
+	while (str[i])
 	{
-		j = 0;
-		while (set[j] != '\0')
-		{
-			if (str[i] == set[j])
-			{
-				start++;
-				break ;
-			}
-			j++;
-		}
-		if (set[j] == '\0')
-			break ;
+		if (c == str[i])
+			return (1);
 		i++;
 	}
-	return (start);
+	return (0);
 }
 
 char	*ft_strtrim(char const *s1, char const *set)
 {
 	char	*str;
-	int		end;
-	int		j;
-	int		start;
+	size_t	start;
+	size_t	end;
+	size_t	i;
 
-	if (s1 == NULL)
-		return (NULL);
-	if (set == NULL)
-		return (ft_strdup(s1));
-	start = ft_start(s1, set);
-	end = ft_strlen(s1) - 1;
-	j = 0;
-	while (set[j] != '\0' && end > 0)
-	{
-		if (s1[end] == set[j])
-		{
-			end--;
-			j = 0;
-		}		
-		else
-			j++;
-	}
-	str = ft_substr(s1, start, end - start + 1);
+	if (!s1)
+		return (0);
+	start = 0;
+	end = ft_strlen(s1);
+	while (ft_pointer(s1[start], set) && s1[start])
+		start++;
+	while (ft_pointer(s1[end - 1], set) && end > start)
+		end--;
+	str = malloc(end - start + 1);
+	if (!str)
+		return (0);
+	i = 0;
+	while (start < end)
+		str[i++] = s1[start++];
+	str[i] = 0;
 	return (str);
 }
-
-/*#include <stdlib.h>
-#include <unistd.h>
-
-void	ft_print_result(char const *s)
-{
-	int		len;
-
-	len = 0;
-	while (s[len])
-		len++;
-	write(1, s, len);
-}
-
-int		main(int argc, const char *argv[])
-{
-	char	*strtrim;
-	int		arg;
-
-	alarm(5);
-	if (argc == 1)
-		return (0);
-	else if ((arg = atoi(argv[1])) == 1)
-	{
-		char s1[] = "lorem \n ipsum \t dolor \n sit \t amet";
-		if (!(strtrim = ft_strtrim(s1, " ")))
-			ft_print_result("NULL");
-		else
-			ft_print_result(strtrim);
-		if (strtrim == s1)
-			ft_print_result("\nA new string was not returned");
-	}
-	else if (arg == 2)
-	{
-		char s1[] = "lorem ipsum dolor sit amet";
-		if (!(strtrim = ft_strtrim(s1, "te")))
-			ft_print_result("NULL");
-		else
-			ft_print_result(strtrim);
-		if (strtrim == s1)
-			ft_print_result("\nA new string was not returned");
-	}
-	else if (arg == 3)
-	{
-		char s1[] = " lorem ipsum dolor sit amet";
-		if (!(strtrim = ft_strtrim(s1, "l ")))
-			ft_print_result("NULL");
-		else
-			ft_print_result(strtrim);
-		if (strtrim == s1)
-			ft_print_result("\nA new string was not returned");
-	}
-	else if (arg == 4)
-	{
-		char s1[] = "lorem ipsum dolor sit amet";
-		if (!(strtrim = ft_strtrim(s1, "tel")))
-			ft_print_result("NULL");
-		else
-			ft_print_result(strtrim);
-		if (strtrim == s1)
-			ft_print_result("\nA new string was not returned");
-	}
-	else if (arg == 5)
-	{
-		char s1[] = "          ";
-		if (!(strtrim = ft_strtrim(s1, " ")))
-			ft_print_result("NULL");
-		else
-			ft_print_result(strtrim);
-		if (strtrim == s1)
-			ft_print_result("\nA new string was not returned");
-	}
-	return (0);
-}*/

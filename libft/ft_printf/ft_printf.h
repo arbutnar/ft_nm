@@ -1,25 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strupcase.c                                     :+:      :+:    :+:   */
+/*   ft_printf.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mabasset <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: arbutnar <arbutnar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/11/29 10:42:49 by mabasset          #+#    #+#             */
-/*   Updated: 2021/11/29 10:47:42 by mabasset         ###   ########.fr       */
+/*   Created: 2022/01/25 08:51:56 by arbutnar          #+#    #+#             */
+/*   Updated: 2022/02/17 12:28:05 by arbutnar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-char	*ft_strupcase(char *str)
-{
-	int	i;
+#ifndef FT_PRINTF_H
+# define FT_PRINTF_H
 
-	i = 0;
-	while (str[i] != '\0')
-	{
-		if (str[i] >= 'a' && str[i] <= 'z')
-			str[i] -= 32;
-		i++;
-	}
-	return (str);
-}
+int ft_printf(const char *str, ...);
+int ft_dprintf(int fd, const char *str, ...);
+
+#endif

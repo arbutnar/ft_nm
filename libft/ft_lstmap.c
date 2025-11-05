@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_lstmap.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mabasset <mabasset@student.42.fr>          +#+  +:+       +#+        */
+/*   By: arbutnar <arbutnar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/01/16 03:27:12 by mabasset          #+#    #+#             */
-/*   Updated: 2022/01/17 16:49:39 by mabasset         ###   ########.fr       */
+/*   Created: 2022/02/06 18:03:39 by arbutnar          #+#    #+#             */
+/*   Updated: 2022/02/06 18:03:42 by arbutnar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,29 +14,22 @@
 
 t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *))
 {
-	t_list	*new_lst;
-	t_list	*new_elem;
+	t_list	*new;
+	t_list	*newlst;
 
-	if (!f || !del)
+	if (!lst || !f)
 		return (NULL);
-	new_lst = NULL;
+	newlst = NULL;
 	while (lst)
 	{
-		new_elem = ft_lstnew((*f)(lst->content));
-		if (!new_elem)
+		new = ft_lstnew(f(lst->content));
+		if (!new)
 		{
-			while (new_lst)
-			{
-				new_elem = new_lst->next;
-				(*del)(new_elem->content);
-				free(new_elem);
-				new_elem = new_lst;
-			}
-			lst = NULL;
+			ft_lstclear(&newlst, del);
 			return (NULL);
 		}
-		ft_lstadd_back(&new_lst, new_elem);
+		ft_lstadd_back(&newlst, new);
 		lst = lst->next;
 	}
-	return (new_lst);
+	return (newlst);
 }

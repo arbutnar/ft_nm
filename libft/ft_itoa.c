@@ -3,81 +3,58 @@
 /*                                                        :::      ::::::::   */
 /*   ft_itoa.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mabasset <mabasset@student.42.fr>          +#+  +:+       +#+        */
+/*   By: arbutnar <arbutnar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/01/13 13:57:21 by mabasset          #+#    #+#             */
-/*   Updated: 2022/01/13 17:37:55 by mabasset         ###   ########.fr       */
+/*   Created: 2022/02/04 17:48:11 by arbutnar          #+#    #+#             */
+/*   Updated: 2022/02/04 17:48:16 by arbutnar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static void	ft_strrev(char *str)
+static int	ft_count(long int n)
 {
-	int		index;
-	int		len;
-	char	temp;
+	int	i;
 
-	index = 0;
-	len = 0;
-	while (str[len] != '\0')
-		len++;
-	len -= 1;
-	while (index < len)
+	i = 0;
+	if (n < 0)
 	{
-		temp = str[len];
-		str[len] = str[index];
-		str[index] = temp;
-		len--;
-		index++;
+		n *= -1;
+		i++;
 	}
+	if (n == 0)
+		i++;
+	while (n > 0)
+	{
+		n = n / 10;
+		i++;
+	}
+	return (i);
 }
 
-void	ft_re_strlen(long int nbr, int *len)
+char	*ft_itoa(int n)
 {
-	if (nbr >= 10)
-		ft_re_strlen(nbr / 10, len);
-	*len += 1;
-}
-
-void	ft_recursive(long int nbr, char *str)
-{
-	if (nbr >= 10)
-		ft_recursive(nbr / 10, str + 1);
-	*str = nbr % 10 + '0';
-}
-
-char	*ft_putnbr(long int nbr, int flag)
-{
-	char	*str;
-	int		len;
-
-	len = 0;
-	ft_re_strlen(nbr, &len);
-	str = (char *) malloc (sizeof(char) * len + flag);
-	if (str == NULL)
-		return (NULL);
-	if (flag == 2)
-		str[len] = '-';
-	str[len + flag - 1] = '\0';
-	ft_recursive(nbr, str);
-	return (&str[0]);
-}
-
-char	*ft_itoa(int nbr)
-{
-	long int	nb;
 	char		*str;
-	int			flag;
+	int			c;
+	long int	n2;
 
-	flag = 1;
-	nb = nbr;
-	if (nb < 0)
+	n2 = n;
+	c = ft_count(n2);
+	str = ft_calloc(c + 1, sizeof(char));
+	if (!str)
+		return (0);
+	if (n2 == 0)
+		str[0] = '0';
+	if (n2 < 0)
 	{
-		nb = nb * -1;
-		flag = 2;
+		str[0] = '-';
+		n2 *= -1;
 	}
-	str = ft_putnbr(nb, flag);
-	ft_strrev(str);
+	while (n2 > 0)
+	{
+		str[c - 1] = (n2 % 10) + '0';
+		n2 = n2 / 10;
+		c--;
+	}
 	return (str);
 }
