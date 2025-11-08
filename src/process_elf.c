@@ -80,8 +80,6 @@ int x_(init_symbols)(t_symbols *symbols, t_sections sections, t_string mapped_fi
     if (x_(init_strtab)(&symbols->strtab, sections, resolve_endianess(symhdr->sh_link), mapped_file))
         return 1;
 
-    printf("%s\n", symbols->strtab.content);
-
     if (symhdr->sh_entsize == 0)
         return 1;
     symbols->count = resolve_endianess(symhdr->sh_size) / resolve_endianess(symhdr->sh_entsize);

@@ -4,11 +4,12 @@ RUN apt-get update && apt-get upgrade -y && \
     apt-get install -y \
     build-essential \
     valgrind \
+    sudo \
     git
 
 WORKDIR /app/ft_nm
 
-# correctio
-# COPY . .
+# correction
+COPY . .
 
 CMD ["sleep", "infinity"]

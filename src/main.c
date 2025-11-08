@@ -84,7 +84,6 @@ int ft_nm(char *file_path) {
 
     if (!g_flags.no_sort)
         sort_symbols(symbols_info);
-    printf("name %s, type %c, value %s\n", symbols_info[0]->name, symbols_info[0]->type, symbols_info[0]->value);
     print_symbols_info(symbols_info, file_path, mapped_file.content[EI_CLASS]);
     return 0;
 }

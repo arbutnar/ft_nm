@@ -12,6 +12,8 @@
 
 #include "ft_printf_internal.h"
 
+extern int g_fd;
+
 static int ft_toggle(char ch)
 {
     if (ch == '-' || ch == '+')
@@ -30,7 +32,7 @@ static void ft_putsep(char *str, int seplen, t_struct *params)
         seplen -= 1;
     while (seplen > 0)
     {
-        params->len += write (1, &ch, 1);
+        params->len += write(g_fd, &ch, 1);
         seplen--;
     }
 }
@@ -51,15 +53,15 @@ void    ft_printnum(char *str, t_struct *params)
         ft_putsep(str, seplen, params);
     if (str[i] == '-' || str[i] == '+')
     {
-        params->len += write(1, str, 1);
+        params->len += write(g_fd, str, 1);
         i = 1;
     }
     if (params->minus == 0 && params->zero == 1)
         ft_putsep(str, seplen, params);
     while (len < params->precision--)
-        params->len += write (1, "0", 1);
+        params->len += write(g_fd, "0", 1);
     while (str[i] != '\0')
-        params->len += write(1, &str[i++], 1);
+        params->len += write(g_fd, &str[i++], 1);
     if (params->minus == 1)
         ft_putsep(str, seplen, params);
 }
@@ -73,16 +75,16 @@ void    ft_printchar(char ch, t_struct *params)
     {
         while (width > 1)
         {
-            params->len += write(1, " ", 1);
+            params->len += write(g_fd, " ", 1);
             width--;
         }
     }
-    params->len += write(1, &ch, 1);
+    params->len += write(g_fd, &ch, 1);
     if (params->minus == 1)
     {
         while (width > 1)
         {
-            params->len += write(1, " ", 1);
+            params->len += write(g_fd, " ", 1);
             width--;
         }
     }
@@ -96,7 +98,7 @@ void    ft_printstr(char *str, t_struct *params)
 
     if (str == NULL)
     {
-        params->len += write (1, "(null)", 6);
+        params->len += write(g_fd, "(null)", 6);
         return ;
     }
     i = 0;
@@ -109,7 +111,7 @@ void    ft_printstr(char *str, t_struct *params)
     if (params->minus == 0)
         ft_putsep(str, seplen, params);
     while (str[i] != '\0' && i < params->precision)
-        params->len += write(1, &str[i++], 1);
+        params->len += write(g_fd, &str[i++], 1);
     if (params->minus == 1)
         ft_putsep(str, seplen, params);
 }

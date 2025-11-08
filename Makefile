@@ -46,15 +46,14 @@ $(O_DIR_32)/%.o: $(S_DIR)/%.c $(HDRS)
 
 CONTAINER_IMG = ft_nm_image
 
-container-clean: fclean
-	-@docker stop $(NAME) 2>/dev/null
-	-@docker rm -f $(NAME) 2>/dev/null
+container-clean:
+	@docker rm -f $(NAME) 1>/dev/null
 
-container: container-clean
+container:
 	@docker build -t $(CONTAINER_IMG) .
-
-exec: container
 	@docker run -d --name $(NAME) $(CONTAINER_IMG)
+
+exec:
 	@docker exec -it $(NAME) /bin/bash
 
 tester: $(NAME)

@@ -12,6 +12,8 @@
 
 #include "ft_printf_internal.h"
 
+int g_fd = 1;
+
 static void ft_identifier(char c, va_list arg, t_struct *params)
 {
     if (c == 'c')
@@ -83,7 +85,7 @@ int ft_printf(const char *str, ...)
         }
         else
         {
-            write (1, str, 1);
+            write(g_fd, str, 1);
             len++;
         }
         str++;
@@ -97,6 +99,7 @@ int ft_dprintf(int fd, const char *str, ...)
     t_struct    params;
     size_t      len;
 
+    g_fd = fd;
     va_start(arg, str);
     len = 0;
     while (*str != '\0')
@@ -111,7 +114,7 @@ int ft_dprintf(int fd, const char *str, ...)
         }
         else
         {
-            write (fd, str, 1);
+            write (g_fd, str, 1);
             len++;
         }
         str++;

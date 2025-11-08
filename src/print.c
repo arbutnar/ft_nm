@@ -1,6 +1,6 @@
 #include "ft_nm.h"
 
-extern t_flags  g_flags;
+extern t_flags g_flags;
 
 void    print_usage() {
     ft_dprintf(STDERR_FILENO, "Usage: nm [option(s)] [file(s)]\n");
