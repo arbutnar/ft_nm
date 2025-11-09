@@ -6,7 +6,7 @@ int get_file_fd(char *file_path) {
     int fd;
 
     fd = open(file_path, O_RDONLY);
-    if (errno == ENOENT)
+    if (fd < 0)
         ft_dprintf(STDERR_FILENO, "nm: '%s': No such file\n", file_path);
     return fd;
 }
