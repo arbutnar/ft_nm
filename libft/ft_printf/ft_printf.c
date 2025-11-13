@@ -14,26 +14,26 @@
 
 int g_fd = 1;
 
-static void ft_identifier(char c, va_list arg, t_struct *params)
+static void ft_identifier(char c, va_list *arg, t_struct *params)
 {
     if (c == 'c')
-        ft_printchar(va_arg(arg, int), params);
+        ft_printchar(va_arg(*arg, int), params);
     else if (c == 's')
-        ft_printstr(va_arg(arg, char *), params);
+        ft_printstr(va_arg(*arg, char *), params);
     else if (c == 'p')
-        ft_utoa_base(va_arg(arg, unsigned long int), params->ebase, params, 2);
+        ft_utoa_base(va_arg(*arg, unsigned long int), params->ebase, params, 2);
     else if (c == 'd')
-        ft_itoa_base(va_arg(arg, int), params->dbase, params);
+        ft_itoa_base(va_arg(*arg, int), params->dbase, params);
     else if (c == 'i')
-        ft_itoa_base(va_arg(arg, int), params->dbase, params);
+        ft_itoa_base(va_arg(*arg, int), params->dbase, params);
     else if (c == 'u')
-        ft_utoa_base(va_arg(arg, unsigned int), params->dbase, params, 0);
+        ft_utoa_base(va_arg(*arg, unsigned int), params->dbase, params, 0);
     else if (c == 'x')
-        ft_utoa_base(va_arg(arg, unsigned int), params->ebase, params, 0);
+        ft_utoa_base(va_arg(*arg, unsigned int), params->ebase, params, 0);
     else if (c == 'X')
     {
         params -> exe = 'X';
-        ft_utoa_base(va_arg(arg, unsigned int), params->e_base, params, 0);
+        ft_utoa_base(va_arg(*arg, unsigned int), params->e_base, params, 0);
     }
     else if (c == '%')
         ft_printchar('%', params);
@@ -71,6 +71,7 @@ int ft_printf(const char *str, ...)
     t_struct    params;
     size_t      len;
 
+    g_fd = 1;
     va_start(arg, str);
     len = 0;
     while (*str != '\0')
@@ -79,7 +80,7 @@ int ft_printf(const char *str, ...)
         {
             ft_struct_init(&params);
             str += ft_checkflags(str + 1, &params);
-            ft_identifier(*(str + 1), arg, &params);
+            ft_identifier(*(str + 1), &arg, &params);
             str++;
             len += params.len;
         }
@@ -90,6 +91,7 @@ int ft_printf(const char *str, ...)
         }
         str++;
     }
+    va_end(arg);
     return (len);
 }
 
@@ -108,7 +110,7 @@ int ft_dprintf(int fd, const char *str, ...)
         {
             ft_struct_init(&params);
             str += ft_checkflags(str + 1, &params);
-            ft_identifier(*(str + 1), arg, &params);
+            ft_identifier(*(str + 1), &arg, &params);
             str++;
             len += params.len;
         }
@@ -119,6 +121,7 @@ int ft_dprintf(int fd, const char *str, ...)
         }
         str++;
     }
+    va_end(arg);
     return (len);
 }
 
